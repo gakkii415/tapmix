@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#171917">
-  <meta name="description" content="曲を選んで、ワンタップ。はじめてのDJのための自動ミックスアプリ。ボカロとEDMのおすすめ、すぐに遊べるオリジナルデモ。">
+  <meta name="description" content="完成済みの公開ミックスを選んで、ワンタップで聴く。EDMのマッシュアップやボカロを含むDJセットを、少ない操作で。">
   <title>TAPMIX — ワンタップで、DJしよう。</title>
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
@@ -34,12 +34,16 @@
 
     <main>
       <section class="intro" aria-labelledby="main-title">
-        <div><div class="eyebrow"><span class="tiny-spark">✳</span> はじめてのDJに。</div><h1 id="main-title">選ぶ。押す。<span>もう、DJ。</span></h1></div>
-        <div class="intro-aside"><p>難しいことは、おまかせ。<br>好きな2曲から、あなただけのミックスを。</p><div class="intro-pills"><span><svg class="icon"><use href="#i-check"/></svg>操作はシンプル</span><span><svg class="icon"><use href="#i-check"/></svg>つなぎは自動</span></div></div>
+        <div><div class="eyebrow"><span class="tiny-spark">✳</span> 選曲も、つなぎも、おまかせ。</div><h1 id="main-title">選ぶ。押す。<span>ミックスが流れる。</span></h1></div>
+        <div class="intro-aside"><p>完成済みの公開ミックスを、集めました。<br>音源の準備も、手作業のミックスもいりません。</p><div class="intro-pills"><span><svg class="icon"><use href="#i-check"/></svg>ワンタップで聴く</span><span><svg class="icon"><use href="#i-check"/></svg>制作者によるミックス</span></div></div>
       </section>
 
       <section class="mix-room" aria-label="ミックスプレーヤー" id="mix-room">
         <div class="room-topline"><span class="room-label"><span class="live-dot"></span> <span id="room-state">READY WHEN YOU ARE</span></span><span class="auto-label">TWO TRACKS. ONE TAP.</span></div>
+        <div class="ready-feature" id="ready-feature" hidden>
+          <div class="ready-art theme-zedd" id="ready-art" aria-hidden="true"><svg class="icon"><use href="#i-disc"/></svg><span id="ready-art-label">CLARITY<br>STAY THE NIGHT</span><small>READY-MADE MIX</small></div>
+          <div class="ready-copy"><span class="ready-kind" id="ready-kind"></span><h2 id="ready-title"></h2><p id="ready-tracks"></p><p id="ready-description"></p><p class="ready-credit" id="ready-credit"></p><a id="ready-source" target="_blank" rel="noopener noreferrer">元動画をYouTubeで開く ↗</a></div>
+        </div>
         <div class="deck-area">
           <article class="deck deck-a" id="deck-a"><div class="deck-heading"><span class="deck-letter">A</span><span class="track-role">FIRST TRACK</span><span class="bpm" id="bpm-a">126 <small>BPM</small></span></div><div class="vinyl-shell"><div class="vinyl"><div class="vinyl-grooves"></div><div class="vinyl-label theme-neon label-a"><span class="label-word">NEON<br>DRIVE</span><span class="label-ring">TAPMIX ORIGINAL · SIDE A ·</span><i></i></div></div><div class="tonearm"><i></i></div></div><div class="track-meta"><h2 id="track-a-title">Neon Drive</h2><p id="track-a-artist">TAPMIX Original</p></div></article>
           <div class="mix-bridge" aria-hidden="true"><span></span><svg class="icon"><use href="#i-arrow"/></svg><span></span></div>
@@ -51,20 +55,21 @@
           <div class="time-row"><span id="time-current">00:00</span><span class="mix-stage" id="mix-stage">あとは、再生を押すだけ。</span><span id="time-total">--:--</span></div>
           <div class="play-row"><button class="play-button" id="play-button"><svg class="icon"><use href="#i-play"/></svg><span>ワンタップでミックス</span></button><button class="stop-button" id="stop-button" aria-label="ミックスを停止して最初に戻す" disabled><svg class="icon"><use href="#i-stop"/></svg></button><div class="volume-control"><svg class="icon"><use href="#i-volume"/></svg><label class="sr-only" for="volume">音量</label><input type="range" id="volume" min="0" max="100" value="70" aria-label="音量"><span id="volume-value">70</span></div></div>
           <div class="player-footnote" id="player-footnote">オリジナルのインスト2曲を、約1分に自動ミックス。</div>
+          <p class="youtube-disclosure" id="youtube-disclosure" hidden>「聴く」を押すとYouTubeプレーヤーの読み込みに同意します。YouTubeへ利用情報が送信され、Cookieなどが使われる場合があります。<a href="https://www.youtube.com/t/terms" target="_blank" rel="noopener noreferrer">利用規約</a>・<a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">プライバシー</a></p>
           <div class="source-actions" id="source-actions" hidden><button class="light-text-button" id="add-audio-button"><svg class="icon"><use href="#i-plus"/></svg><span>音源を追加して、ミックスする</span></button><button class="light-text-button" id="youtube-button"><svg class="icon"><use href="#i-play"/></svg><span>YouTubeを2つ並べる</span></button></div>
         </div>
       </section>
 
       <section class="selection" aria-labelledby="selection-title">
-        <div class="selection-heading"><div class="section-title-row"><h2 id="selection-title">今日は、どの2曲？</h2><span class="handwritten">選曲も、おまかせ。<svg class="icon"><use href="#i-arrow"/></svg></span></div><p>相性のよさそうな組み合わせを、選んでおきました。</p></div>
-        <div class="filters" aria-label="曲のカテゴリ"><button class="filter active" data-filter="demo" aria-pressed="true">すぐ試せる<span>2</span></button><button class="filter" data-filter="vocaloid" aria-pressed="false">ボカロ<span>3</span></button><button class="filter" data-filter="edm" aria-pressed="false">EDM<span>2</span></button><button class="filter" data-filter="custom" aria-pressed="false"><svg class="icon"><use href="#i-plus"/></svg>自分の曲</button></div>
+        <div class="selection-heading"><div class="section-title-row"><h2 id="selection-title">今日は、どのミックス？</h2><span class="handwritten">タップして、聴こう。<svg class="icon"><use href="#i-arrow"/></svg></span></div><p>公開ミックスは、カードを押すだけで再生が始まります。</p></div>
+        <div class="filters" aria-label="曲のカテゴリ"><button class="filter active" data-filter="ready" aria-pressed="true">公開ミックス<span>3</span></button><button class="filter" data-filter="demo" aria-pressed="false">デモ<span>2</span></button><button class="filter" data-filter="vocaloid" aria-pressed="false">ボカロ音源で遊ぶ<span>3</span></button><button class="filter" data-filter="edm" aria-pressed="false">EDM音源で遊ぶ<span>2</span></button><button class="filter" data-filter="custom" aria-pressed="false"><svg class="icon"><use href="#i-plus"/></svg>自分の曲</button></div>
         <p class="filter-note" id="filter-note">TAPMIXのオリジナル音源。準備なしで、自動ミックスを体験できます。</p>
         <div class="pair-grid" id="pair-grid"></div>
       </section>
 
-      <section class="little-note"><div class="note-icon"><svg class="icon"><use href="#i-headphones"/></svg></div><div><h2>うまくつなぐより、楽しめればいい。</h2><p>ノブも、フェーダーも、難しい準備も。ここではいりません。<br>小さなDJルームで、好きな音を楽しもう。</p></div><span class="note-star" aria-hidden="true">✳</span></section>
+      <section class="little-note"><div class="note-icon"><svg class="icon"><use href="#i-headphones"/></svg></div><div><h2>つなぎは制作者に、楽しむ時間はあなたに。</h2><p>公開済みのミックスを、YouTubeのプレーヤーで再生します。<br>音量や再生位置は動画内で。デモや手元の音源で遊ぶこともできます。</p></div><span class="note-star" aria-hidden="true">✳</span></section>
     </main>
-    <footer><span class="footer-brand">TAPMIX<span>少ない操作で、音楽をもっと。</span></span><div><button class="footer-link" id="privacy-button">音源とプライバシー</button><button class="footer-link" id="youtube-info-button">YouTubeについて</button></div><span class="footer-small">MADE FOR YOUR EARS.</span><!-- app-version:start --><small id="app-version">v3</small><!-- app-version:end --></footer>
+    <footer><span class="footer-brand">TAPMIX<span>少ない操作で、音楽をもっと。</span></span><div><button class="footer-link" id="privacy-button">音源とプライバシー</button><button class="footer-link" id="youtube-info-button">YouTubeについて</button></div><span class="footer-small">MADE FOR YOUR EARS.</span><!-- app-version:start --><small id="app-version">v4</small><!-- app-version:end --></footer>
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -72,15 +77,15 @@
 
   <dialog id="import-dialog" class="sheet"><div class="dialog-header"><span class="eyebrow">YOUR MUSIC, YOUR MIX.</span><button class="icon-button" data-close="import-dialog" aria-label="閉じる"><svg class="icon"><use href="#i-close"/></svg></button></div><h2>音源を2つ、入れるだけ。</h2><p class="dialog-lead">一度追加すれば、次からはワンタップ。<br>利用できる音源ファイルを選んでください。</p><div class="upload-slots" id="upload-slots"></div><p class="local-note"><svg class="icon"><use href="#i-check"/></svg>音源はこのブラウザ内に保存。サーバーへ送りません。</p><p class="small-muted">MP3・WAV・M4Aなど（各35MB・3秒〜15分）。約1分のミックスを自動でつくります。YouTubeのURLは音源として取り込めません。</p><button class="primary-button" id="import-play-button" disabled><svg class="icon"><use href="#i-play"/></svg>この2曲をミックス</button></dialog>
 
-  <dialog id="help-dialog" class="sheet"><div class="dialog-header"><span class="eyebrow">LET'S GET STARTED.</span><button class="icon-button" data-close="help-dialog" aria-label="閉じる"><svg class="icon"><use href="#i-close"/></svg></button></div><h2>DJのはじめ方は、3つだけ。</h2><ol class="howto"><li><span>01</span><div><h3>気になる2曲を選ぶ。</h3><p>最初は「すぐ試せる」のデモがおすすめ。音源の準備もいりません。</p></div></li><li><span>02</span><div><h3>再生を、ワンタップ。</h3><p>つなぐタイミングと音量の切り替えは自動。再生中は一時停止や停止もできます。</p></div></li><li><span>03</span><div><h3>好きな曲でも、やってみる。</h3><p>ボカロ・EDMのおすすめ、または自分の曲を選び、利用できる音源を2つ追加。次からは保存した音源で遊べます。</p></div></li></ol><div class="info-box">YouTubeはA・Bを同じ画面に並べ、各動画の再生ボタンで試聴できます。テンポ合わせや自動ミックスには、デモまたは手元の音源を使います。</div><button class="primary-button" data-close="help-dialog">さっそく、やってみる<svg class="icon"><use href="#i-arrow"/></svg></button></dialog>
+  <dialog id="help-dialog" class="sheet"><div class="dialog-header"><span class="eyebrow">LET'S GET STARTED.</span><button class="icon-button" data-close="help-dialog" aria-label="閉じる"><svg class="icon"><use href="#i-close"/></svg></button></div><h2>ミックスを選んで、聴くだけ。</h2><ol class="howto"><li><span>01</span><div><h3>公開ミックスをワンタップ。</h3><p>気になるカード、または大きな「ミックスを聴く」ボタンを押します。音源の追加はいりません。</p></div></li><li><span>02</span><div><h3>つなぎを、そのまま楽しむ。</h3><p>制作者が仕上げた1本の動画を再生します。曲ごとの操作は不要です。音量や再生位置は動画内で調整できます。</p></div></li><li><span>03</span><div><h3>止めるときは、一時停止か閉じる。</h3><p>ブラウザが再生を止めた場合は、動画内の再生ボタンを押してください。再生できない動画は、元動画のリンクから開けます。</p></div></li></ol><div class="info-box">手元の曲でも遊びたくなったら「デモ」や「自分の曲」へ。こちらはブラウザ内で短いクロスフェードを作る別の機能です。</div><button class="primary-button" data-close="help-dialog">さっそく、聴いてみる<svg class="icon"><use href="#i-arrow"/></svg></button></dialog>
 
   <dialog id="info-dialog" class="sheet"><div class="dialog-header"><span class="eyebrow">A LITTLE MORE ABOUT TAPMIX.</span><button class="icon-button" data-close="info-dialog" aria-label="閉じる"><svg class="icon"><use href="#i-close"/></svg></button></div><div id="info-content"></div></dialog>
 
   <dialog id="youtube-dialog" class="youtube-sheet">
-    <div class="dialog-header"><div><span class="eyebrow">YOUTUBE · SIDE A / SIDE B</span><h2>2曲を、同じ画面で。</h2></div><button class="icon-button" data-close="youtube-dialog" aria-label="両方のYouTubeを停止して閉じる"><svg class="icon"><use href="#i-close"/></svg></button></div>
-    <p class="youtube-note">A・Bそれぞれの動画内で、再生を押してください。再生位置と音量も各動画で操作できます。</p>
+    <div class="dialog-header"><div><span class="eyebrow" id="youtube-eyebrow">YOUTUBE · PUBLIC MIX</span><h2 id="youtube-title">完成済みミックスを聴く。</h2></div><button class="icon-button" data-close="youtube-dialog" aria-label="YouTubeを停止して閉じる"><svg class="icon"><use href="#i-close"/></svg></button></div>
+    <p class="youtube-note" id="youtube-note"></p>
     <div id="youtube-consent"><div class="info-box">YouTubeの公式プレーヤーを2つ読み込みます。YouTubeに利用情報が送信され、Cookieなどが使われる場合があります。<a href="https://www.youtube.com/t/terms" target="_blank" rel="noopener noreferrer">YouTube利用規約</a>・<a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Googleプライバシーポリシー</a>をご確認ください。</div><button class="primary-button" id="youtube-consent-button">同意して2曲を並べる<svg class="icon"><use href="#i-arrow"/></svg></button></div>
-    <div id="youtube-stage" hidden><div id="youtube-player-mount" class="youtube-decks"></div><div class="youtube-transport"><p id="youtube-status" role="status">YouTubeに接続しています…</p><button class="youtube-pause" id="youtube-pause-button" disabled><svg class="icon"><use href="#i-pause"/></svg>両方を一時停止</button></div><p class="youtube-manual-note">この画面は個別に再生する試聴用です。テンポ合わせ・自動ミックスは、デモまたは追加した音源で使えます。</p></div>
+    <div id="youtube-stage" hidden><div id="youtube-player-mount" class="youtube-decks"></div><div class="youtube-transport"><p id="youtube-status" role="status">YouTubeに接続しています…</p><button class="youtube-pause" id="youtube-pause-button" disabled><svg class="icon"><use href="#i-pause"/></svg><span>一時停止</span></button></div><p class="youtube-manual-note" id="youtube-manual-note"></p></div>
     <div id="youtube-links" class="youtube-links"></div>
   </dialog>
 

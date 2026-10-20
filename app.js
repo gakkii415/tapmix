@@ -10,7 +10,9 @@ const safeSet = (key,value) => {try{localStorage.setItem(key,value);}catch{/* Pr
 const files = new Map();
 const demoCache = new Map();
 const uploadTokens = new Map();
-let selected = PAIRS.find(p => p.id === safeGet('tapmix-pair')) || PAIRS[0];
+// Introduce the public-mix flow once; later visits keep the listener's choice.
+const savedPair = safeGet('tapmix-ready-intro') === 'yes' ? safeGet('tapmix-pair') : null;
+let selected = PAIRS.find(p => p.id === savedPair) || PAIRS[0];
 let filter = selected.genre;
 let selectionVersion = 0;
 let activePlan = null;
@@ -27,6 +29,8 @@ let youtubeReady = [];
 let youtubeErrors = [];
 let youtubeGeneration = 0;
 let youtubeApiPromise = null;
+let youtubeIsMix = false;
+let youtubeAutoStart = false;
 let dbPromise;
 let playbackRequest = 0;
 let storageEpoch = 0;
@@ -160,6 +164,31 @@ function trackTitle(index){
 }
 
 function updateTrackMetadata(){
+  const premixed=Boolean(selected.mix);
+  $('mix-room').classList.toggle('premixed',premixed);
+  $('ready-feature').hidden=!premixed;
+  document.querySelector('.deck-area').hidden=premixed;
+  document.querySelector('.waveform-wrap').hidden=premixed;
+  document.querySelector('.time-row').hidden=premixed;
+  document.querySelector('.volume-control').hidden=premixed;
+  $('stop-button').hidden=premixed;
+  $('youtube-disclosure').hidden=!premixed;
+  if(premixed){
+    $('ready-art').className=`ready-art theme-${selected.theme}`;
+    $('ready-art-label').textContent=selected.id==='porter-set'?'SECRET SKY\n2020':selected.id==='avicii-mix'?'WAKE ME UP\nTHE NIGHTS':'CLARITY\nSTAY THE NIGHT';
+    $('ready-kind').textContent=selected.mix.kind;
+    $('ready-title').textContent=selected.name;
+    $('ready-tracks').textContent=selected.tracks.map(track=>`${track.title} — ${track.artist}`).join(' / ');
+    $('ready-description').textContent=selected.description;
+    $('ready-credit').textContent=`ミックス制作・投稿：${selected.mix.creator}`;
+    $('ready-source').href=youtubeURL(selected.mix.youtube);
+    $('source-chip').textContent='PUBLIC MIX';
+    $('mix-description').textContent='制作者が仕上げたミックスを、1本で再生。';
+    $('player-footnote').textContent='音源の追加は不要。音量・再生位置はYouTubeの動画内で操作できます。';
+    $('source-actions').hidden=true;
+    updateControls();
+    return;
+  }
   const sources = sourcesFor();
   ['a','b'].forEach((letter,index) => {
     const source = sources?.[index];
@@ -189,6 +218,14 @@ function updateTrackMetadata(){
 
 function updateControls(){
   const button=$('play-button');
+  if(selected.mix){
+    button.querySelector('span').textContent=safeGet('tapmix-youtube-consent')==='yes'?'ミックスを聴く':'同意してミックスを聴く';
+    button.querySelector('use').setAttribute('href','#i-play');
+    button.disabled=false;
+    $('stop-button').disabled=true;
+    $('import-play-button').disabled=true;
+    return;
+  }
   const state=playbackState;
   const text=busy?'音源を準備しています…':state==='playing'?'ミックスを一時停止':state==='paused'?'つづきから再生':!isReady()?'音源を追加してミックス':completed?'もう一度、ミックス':'ワンタップでミックス';
   button.querySelector('span').textContent=text;
@@ -203,13 +240,16 @@ function updateControls(){
 async function selectPair(id,{scroll=false}={}){
   const pair=PAIRS.find(p=>p.id===id);
   if(!pair) return;
+  closeYouTube();
   stopPlayback();
   const version=++selectionVersion;
   selected=pair;activePlan=null;activeSources=null;
   safeSet('tapmix-pair',id);
+  safeSet('tapmix-ready-intro','yes');
   renderCards();
   updateTrackMetadata();
   if(scroll) $('mix-room').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});
+  if(pair.mix){loadingSelectionVersion=0;refreshBusy();return;}
   loadingSelectionVersion=version;refreshBusy();
   try{
     if(pair.genre==='demo') await loadDemo(pair);
@@ -239,20 +279,22 @@ function renderFilters(){
     const active=button.dataset.filter===filter;
     button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active));
   });
-  $('filter-note').textContent={demo:'TAPMIXのオリジナル音源。準備なしで、自動ミックスを体験できます。',vocaloid:'有名ボカロから3組。YouTubeで原曲を試聴でき、手元の音源を追加するとミックスできます。',edm:'歌える、盛り上がれる2組。YouTubeで試聴でき、手元の音源を追加するとミックスできます。',custom:'利用できる音源を2つ追加。音源はこのブラウザに保存されるので、次回の準備もいりません。'}[filter];
+  $('filter-note').textContent={ready:'完成済みのマッシュアップ2本と、ボカロを含むDJセット全編を1本。カードを押すとYouTubeの読み込みに同意して再生します。',demo:'TAPMIXのオリジナル音源。準備なしで、短い自動クロスフェードを体験できます。',vocaloid:'手元の音源で遊ぶ候補です。原曲はYouTubeで試聴でき、ミックスには音源の追加が必要です。',edm:'手元の音源で遊ぶ候補です。原曲はYouTubeで試聴でき、ミックスには音源の追加が必要です。',custom:'利用できる音源を2つ追加。音源はこのブラウザに保存されるので、次回の準備もいりません。'}[filter];
 }
 
 function renderCards(){
   renderFilters();
-  const labels={neon:'NEON<br>AFTERGLOW',moon:'MOONLIGHT<br>BLUE HOUR',deco:'MIKU<br>ROCKS.',wowaka:'ROLLING<br>UNKNOWN',livetune:'HELLO,<br>YOUR WORLD.',avicii:'THE NIGHTS<br>WE REMEMBER',zedd:'STAY IN<br>CLARITY',custom:'YOUR MUSIC.<br>YOUR MIX.'};
+  const labels={'zedd-mix':'CLARITY<br>STAY THE NIGHT','avicii-mix':'WAKE ME UP<br>THE NIGHTS','porter-set':'SECRET SKY<br>2020',neon:'NEON<br>AFTERGLOW',moon:'MOONLIGHT<br>BLUE HOUR',deco:'MIKU<br>ROCKS.',wowaka:'ROLLING<br>UNKNOWN',livetune:'HELLO,<br>YOUR WORLD.',avicii:'THE NIGHTS<br>WE REMEMBER',zedd:'STAY IN<br>CLARITY',custom:'YOUR MUSIC.<br>YOUR MIX.'};
   $('pair-grid').innerHTML=PAIRS.filter(pair=>pair.genre===filter).map((pair,index)=>{
     const chosen=pair.id===selected.id;
     const ready=isReady(pair);
+    if(pair.mix)return `<article class="pair-card ready-card${chosen?' selected':''}"><button class="pair-select" data-ready-pair="${pair.id}" aria-label="${escapeHTML(pair.name)}をYouTubeで聴く"><div class="card-cover theme-${pair.theme}"><span class="cover-corner">${escapeHTML(pair.mix.kind)}</span><span class="cover-orbit"></span><span class="cover-type">${labels[pair.id]}</span><span class="cover-number">${icon('play')} 聴く</span></div><div class="card-content"><span class="card-tag">${escapeHTML(pair.tag)}</span><h3>${escapeHTML(pair.name)}</h3>${pair.tracks.map(track=>`<div class="card-song"><span>${escapeHTML(track.title)}</span></div>`).join('')}<p class="card-credit">制作：${escapeHTML(pair.mix.creator)}</p></div></button><div class="card-bottom"><span class="ready">音源追加なし · タップして再生</span><a href="${youtubeURL(pair.mix.youtube)}" target="_blank" rel="noopener noreferrer" aria-label="${escapeHTML(pair.mix.title)}の元動画を開く">元動画 ${icon('link')}</a></div></article>`;
     return `<article class="pair-card${chosen?' selected':''}"><button class="pair-select" data-pair="${pair.id}" aria-pressed="${chosen}" aria-label="${escapeHTML(pair.name)}を選ぶ"><div class="card-cover theme-${pair.theme}"><span class="cover-corner">${pair.genre==='demo'?'TAPMIX ORIGINAL':pair.genre==='custom'?'YOUR LIBRARY':'CURATED PAIR'}</span><span class="cover-orbit"></span><span class="cover-type">${labels[pair.id]}</span><span class="cover-number">PAIR / 0${index+1}</span>${chosen?`<span class="selected-badge">${icon('check')}</span>`:''}</div><div class="card-content"><span class="card-tag"><i></i>${escapeHTML(pair.tag)}</span><h3>${escapeHTML(pair.name)}</h3>${pair.tracks.map((track,i)=>`<div class="card-song"><small>${i?'B':'A'}</small><span>${escapeHTML(pair.genre==='custom'&&files.get(`${pair.id}:${i}`)?files.get(`${pair.id}:${i}`).fileName:track.title)}</span></div>`).join('')}</div></button><div class="card-bottom"><span class="${ready||pair.genre==='demo'?'ready':''}">${pair.genre==='demo'?`${pair.bpm} BPM · デモ音源付`:ready?'音源追加済 · ミックスOK':'ミックスには音源を追加'}</span><span class="card-bottom-right">${pair.tracks[0].youtube?pair.tracks.map((track,i)=>`<a href="${youtubeURL(track.youtube)}" target="_blank" rel="noopener noreferrer" aria-label="${escapeHTML(track.title)}の公式YouTube動画を開く">${i?'B':'A'} ${icon('link')}</a>`).join(''):icon(chosen?'check':'arrow')}</span></div></article>`;
   }).join('');
 }
 
 async function primaryAction(){
+  if(selected.mix){safeSet('tapmix-youtube-consent','yes');updateControls();openYouTube({consented:true});return;}
   if(busy)return;
   const request=++playbackRequest;
   const pairId=selected.id;
@@ -385,32 +427,42 @@ async function deleteFile(slot){
 
 function showInfo(kind){
   const contents={
-    mix:`<h2>つなぎは、TAPMIXにおまかせ。</h2><div class="prose"><p>2曲の冒頭から、それぞれ最大約32秒を使います。終わりと始まりを数秒重ね、片方を小さく、もう片方を大きくして自然につなぎます。</p><h3>テンポも、できる範囲で。</h3><p>音源からテンポを推定し、十分な確かさがあってテンポが近い場合は、拍のタイミングを合わせます。再生速度を変えるため、音の高さも少し変わります。テンポ差が大きい曲や拍を検出できない曲は、元の速度でつなぎます。</p><p>おすすめは曲調・アーティストで選んだ候補です。キーや曲の構成の完全な一致、すべての曲での自然なつながりを保証するものではありません。</p></div>`,
+    mix:selected.mix?`<h2>つなぎまで、完成したミックス。</h2><div class="prose"><p>この候補は${escapeHTML(selected.mix.creator)}が制作・公開した「${escapeHTML(selected.mix.title)}」です。アプリが原曲2本を重ねるのではなく、完成済みの動画を1つのYouTubeプレーヤーで聴きます。</p><p>${escapeHTML(selected.description)}</p><p>曲の構成やつなぎは動画の制作者によるものです。アプリでBPMやキーを解析したり、新しくミックスを生成したりはしません。</p><p><a href="${youtubeURL(selected.mix.youtube)}" target="_blank" rel="noopener noreferrer">制作者の元動画を開く</a>${selected.mix.source?` / <a href="${selected.mix.source}" target="_blank" rel="noopener noreferrer">収録曲の情報</a>`:''}</p></div>`:`<h2>手元の2曲で、短いミックス。</h2><div class="prose"><p>2曲の冒頭から、それぞれ最大約32秒を使います。終わりと始まりを数秒重ね、片方を小さく、もう片方を大きくするクロスフェードです。</p><h3>テンポも、できる範囲で。</h3><p>音源からテンポを推定し、十分な確かさがあってテンポが近い場合は、拍のタイミングを合わせます。再生速度を変えるため、音の高さも少し変わります。テンポ差が大きい曲や拍を検出できない曲は、元の速度でつなぎます。</p><p>曲のサビ・フレーズ・キーを判定してつなぎを決める機能はありません。完成済みの公開ミックスは「公開ミックス」から聴けます。</p></div>`,
     privacy:`<h2>あなたの音源は、あなたの中に。</h2><div class="prose"><p>追加した音源は、お使いのブラウザのIndexedDBに保存し、この端末内で解析・再生します。音源をサーバーへアップロードしたり、ほかの人に公開したりする機能はありません。</p><p>選んだ組み合わせ・音量・YouTube試聴への同意は、このブラウザのlocalStorageに保存します。ブラウザ・端末・サイトの配信元を変えた場合や、サイトデータを削除した場合は引き継がれません。</p><h3>音源を削除するには</h3><p>曲を選んで「追加した音源を管理」を開き、ごみ箱を押すとその音源を削除できます。下のボタンですべての保存音源と設定を削除できます。</p><button class="delete-all" id="delete-all-button">${icon('trash')}保存した音源と設定をすべて削除</button><h3>外部サービス</h3><p>このサイトのフォントはGoogle Fontsから読み込みます。YouTubeの試聴は同意後にプレーヤーを読み込み、YouTubeへ情報が送られます。詳しくは<a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Googleのプライバシーポリシー</a>をご確認ください。このサイトはGitHub Pagesで配信します。</p></div>`,
-    youtube:`<h2>YouTubeは、原曲を聴く場所。</h2><div class="prose"><p>ボカロ・EDMの各組に、公式投稿のYouTubeリンクを用意しています。「YouTubeを2つ並べる」では、2つの公式プレーヤーを同じ画面に並べます。A・Bそれぞれの動画内で再生を押し、音量や再生位置を操作できます。</p><p>この試聴画面は、各動画を手動で開始する方式です。ブラウザや端末によっては、2本目の再生で1本目が停止する場合があります。アプリによる同時自動再生・テンポ合わせは行いません。YouTubeの利用規約や音源の利用条件も適用されます。</p><p>自動ミックスにはオリジナルデモ、またはご自身で利用できる音源をご使用ください。おすすめに掲載したことは、各楽曲の加工許諾を意味しません。</p><p>広告・地域制限・埋め込み制限・ブラウザの自動再生制限により、試聴が止まる場合があります。その場合は公式YouTubeリンクから開けます。</p><p><a href="https://www.youtube.com/t/terms" target="_blank" rel="noopener noreferrer">YouTube利用規約</a> / <a href="https://developers.google.com/youtube/terms/developer-policies" target="_blank" rel="noopener noreferrer">YouTube開発者ポリシー</a> / <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Googleプライバシーポリシー</a></p></div>`
+    youtube:`<h2>公開ミックスを、そのまま聴く。</h2><div class="prose"><p>「公開ミックス」は、制作者がすでに完成させたマッシュアップやDJセットです。カードまたは再生ボタンを押すと、1つのYouTube公式プレーヤーで再生します。各候補に制作者名と元動画へのリンクを付けています。</p><p>このアプリはYouTube音源のダウンロード・保存・解析を行いません。広告・地域制限・埋め込み制限・ブラウザの自動再生設定により、動画内での再生操作や、元動画への移動が必要になる場合があります。</p><p>「ボカロ音源で遊ぶ」「EDM音源で遊ぶ」の原曲2画面試聴と、手元の音源で作るクロスフェードは別の機能です。楽曲の利用条件は各権利者・サービスの案内をご確認ください。</p><p><a href="https://www.youtube.com/t/terms" target="_blank" rel="noopener noreferrer">YouTube利用規約</a> / <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Googleプライバシーポリシー</a></p></div>`
   };
   $('info-content').innerHTML=contents[kind];openDialog('info-dialog');
 }
 
 async function clearAll(){
+  closeYouTube();
   stopPlayback();++selectionVersion;
   ++storageEpoch;loadingSelectionVersion=0;
   files.clear();uploadTokens.clear();pendingUploads.clear();refreshBusy();
   try{
     const db=await database();
     await new Promise((resolve,reject)=>{const transaction=db.transaction('tracks','readwrite');transaction.objectStore('tracks').clear();transaction.oncomplete=resolve;transaction.onerror=()=>reject(transaction.error);});
-    for(const key of ['tapmix-pair','tapmix-volume','tapmix-youtube-consent'])try{localStorage.removeItem(key);}catch{/* Nothing persisted. */}
+    for(const key of ['tapmix-pair','tapmix-volume','tapmix-youtube-consent','tapmix-ready-intro'])try{localStorage.removeItem(key);}catch{/* Nothing persisted. */}
     $('volume').value='70';$('volume-value').textContent='70';mixer.setVolume(.7);
-    filter='demo';$('info-dialog').close();await selectPair('neon');toast('保存した音源と設定を削除しました。');
+    filter='ready';$('info-dialog').close();await selectPair(PAIRS[0].id);toast('保存した音源と設定を削除しました。');
   }catch{toast('削除できませんでした。ブラウザ設定のサイトデータから削除してください。');}
 }
 
-function openYouTube(){
-  if(!selected.tracks[0].youtube)return;
+function openYouTube({consented=false}={}){
+  if(!selected.mix&&!selected.tracks[0].youtube)return;
   if($('youtube-dialog').open)return;
   stopPlayback();
-  $('youtube-links').innerHTML=selected.tracks.map((track,index)=>`<a href="${youtubeURL(track.youtube)}" target="_blank" rel="noopener noreferrer">${icon('link')}${index?'B':'A'} · ${escapeHTML(track.title)} — ${escapeHTML(track.artist)} をYouTubeで開く</a>`).join('');
-  $('youtube-consent').hidden=safeGet('tapmix-youtube-consent')==='yes';
+  youtubeIsMix=Boolean(selected.mix);
+  youtubeAutoStart=youtubeIsMix;
+  $('youtube-dialog').classList.toggle('finished-mix',youtubeIsMix);
+  $('youtube-player-mount').classList.toggle('single-mix',youtubeIsMix);
+  $('youtube-eyebrow').textContent=youtubeIsMix?'YOUTUBE · PUBLIC MIX':'YOUTUBE · SIDE A / SIDE B';
+  $('youtube-title').textContent=youtubeIsMix?selected.name:'2曲を、同じ画面で。';
+  $('youtube-note').textContent=youtubeIsMix?`${selected.mix.kind} · 制作・投稿：${selected.mix.creator}`:'A・Bそれぞれの動画内で、再生を押してください。再生位置と音量も各動画で操作できます。';
+  $('youtube-manual-note').textContent=youtubeIsMix?'完成済みの公開ミックスを1本で再生しています。音量・再生位置は動画内で操作できます。':'この画面は個別に再生する試聴用です。テンポ合わせ・自動ミックスは、デモまたは追加した音源で使えます。';
+  $('youtube-pause-button').querySelector('span').textContent=youtubeIsMix?'一時停止':'両方を一時停止';
+  $('youtube-links').innerHTML=youtubeIsMix?`<a href="${youtubeURL(selected.mix.youtube)}" target="_blank" rel="noopener noreferrer">${icon('link')}元動画を開く · ${escapeHTML(selected.mix.title)} — ${escapeHTML(selected.mix.creator)}</a>`:selected.tracks.map((track,index)=>`<a href="${youtubeURL(track.youtube)}" target="_blank" rel="noopener noreferrer">${icon('link')}${index?'B':'A'} · ${escapeHTML(track.title)} — ${escapeHTML(track.artist)} をYouTubeで開く</a>`).join('');
+  $('youtube-consent').hidden=consented||safeGet('tapmix-youtube-consent')==='yes';
   $('youtube-stage').hidden=!$('youtube-consent').hidden;
   openDialog('youtube-dialog');
   if($('youtube-consent').hidden)startYouTube();
@@ -432,7 +484,8 @@ function loadYouTubeAPI(){
 }
 
 async function startYouTube(){
-  const tracks=selected.tracks.map(track=>({...track}));
+  const mixMode=youtubeIsMix;
+  const tracks=mixMode?[{title:selected.mix.title,artist:selected.mix.creator,youtube:selected.mix.youtube}]:selected.tracks.map(track=>({...track}));
   const generation=++youtubeGeneration;
   releaseYouTubePlayers();
   $('youtube-consent').hidden=true;$('youtube-stage').hidden=false;
@@ -440,21 +493,22 @@ async function startYouTube(){
   try{
     await loadYouTubeAPI();
     if(generation!==youtubeGeneration||!$('youtube-dialog').open)return;
-    youtubeStates=[-1,-1];youtubeReady=[false,false];youtubeErrors=['',''];
+    youtubeStates=tracks.map(()=>-1);youtubeReady=tracks.map(()=>false);youtubeErrors=tracks.map(()=>'');
     $('youtube-player-mount').innerHTML=tracks.map((track,index)=>{
       const side=index?'b':'a';
-      return `<section class="youtube-deck" aria-label="${side.toUpperCase()}のYouTubeプレーヤー"><div class="youtube-deck-heading"><span class="deck-letter">${side.toUpperCase()}</span><div><h3>${escapeHTML(track.title)}</h3><p>${escapeHTML(track.artist)}</p></div></div><div class="youtube-frame"><div id="youtube-player-${side}"></div></div><p class="youtube-deck-status" id="youtube-state-${side}" role="status">動画を読み込んでいます…</p></section>`;
+      return `<section class="youtube-deck" aria-label="${mixMode?'完成済みミックス':side.toUpperCase()}のYouTubeプレーヤー"><div class="youtube-deck-heading">${mixMode?'':`<span class="deck-letter">${side.toUpperCase()}</span>`}<div><h3>${escapeHTML(track.title)}</h3><p>${escapeHTML(track.artist)}</p></div></div><div class="youtube-frame"><div id="youtube-player-${side}"></div></div><p class="youtube-deck-status" id="youtube-state-${side}" role="status">動画を読み込んでいます…</p></section>`;
     }).join('');
     tracks.forEach((track,index)=>{
       const side=index?'b':'a';
       youtubePlayers[index]=new YT.Player(`youtube-player-${side}`,{
         width:'100%',height:'240',videoId:track.youtube,host:'https://www.youtube-nocookie.com',
-        // Only native player taps start playback. The app never auto-starts either video.
-        playerVars:{autoplay:0,controls:1,playsinline:1,rel:0,origin:location.origin},events:{
+        // A user requests one finished mix. Original A/B previews remain manual.
+        playerVars:{autoplay:mixMode&&youtubeAutoStart&&!document.hidden?1:0,controls:1,playsinline:1,rel:0,origin:location.origin},events:{
           onReady(event){
             if(generation!==youtubeGeneration){event.target.destroy();return;}
             youtubeReady[index]=true;
-            event.target.getIframe?.()?.setAttribute('title',`${side.toUpperCase()} · ${track.title} — YouTube`);
+            event.target.getIframe?.()?.setAttribute('title',`${mixMode?'公開ミックス':side.toUpperCase()} · ${track.title} — YouTube`);
+            if(mixMode&&(!youtubeAutoStart||document.hidden))event.target.pauseVideo?.();
             updateYouTubeStatus();
           },
           onStateChange(event){
@@ -465,7 +519,9 @@ async function startYouTube(){
           },
           onAutoplayBlocked(){
             if(generation!==youtubeGeneration)return;
+            youtubeAutoStart=false;
             $(`youtube-state-${side}`).textContent='動画内の再生ボタンを押してください。';
+            if(mixMode)$('youtube-status').textContent='ブラウザが再生を止めました。動画内の ▶ を押すと聴けます。';
           },
           onError(event){
             if(generation!==youtubeGeneration)return;
@@ -485,15 +541,21 @@ function updateYouTubeStatus(){
   ['a','b'].forEach((side,index)=>{
     const state=youtubeStates[index];
     const target=$(`youtube-state-${side}`);
-    if(target)target.textContent=youtubeErrors[index]||(state===1?'再生中':state===2?'一時停止中':state===0?'再生終了':state===3?'読み込み中…':youtubeReady[index]?'動画内の再生ボタンでスタート。':'動画を読み込んでいます…');
+    if(target)target.textContent=youtubeErrors[index]||(state===1?'再生中':state===2?'一時停止中':state===0?'再生終了':state===3?'読み込み中…':youtubeReady[index]?'動画内の再生ボタンでもスタートできます。':'動画を読み込んでいます…');
   });
   const playing=youtubeStates.filter(state=>state===1).length;
   const failed=youtubeErrors.some(Boolean);
   $('youtube-pause-button').disabled=!youtubeReady.some(Boolean);
+  if(youtubeIsMix){
+    const state=youtubeStates[0];
+    $('youtube-status').textContent=failed?'この画面では再生できません。下の元動画リンクから開いてください。':state===1?'完成済みミックスを再生中。曲ごとの操作はいりません。':state===2?'一時停止中。動画内の ▶ で続きを聴けます。':state===0?'再生が終わりました。動画内の ▶ でもう一度聴けます。':state===3?'ミックスを読み込んでいます…':!youtubeAutoStart?'動画内の ▶ を押すと聴けます。':youtubeReady[0]?'再生を開始しています。始まらない場合は動画内の ▶ を押してください。':'YouTubeに接続しています…';
+    return;
+  }
   $('youtube-status').textContent=playing===2?'A と B を同時に再生中。音量・再生位置は各動画で調整できます。':playing===1?`${youtubeStates[0]===1?'A':'B'} を再生中。${failed?'もう一方は公式リンクから開けます。':'もう一方も、動画内の再生ボタンから開始できます。'}`:failed?'再生できない動画は、下の公式リンクから開いてください。':youtubeReady.every(Boolean)?'A と B、それぞれの動画内の再生ボタンを押してください。':'YouTubeに接続しています…';
 }
 
 function pauseYouTube(){
+  youtubeAutoStart=false;
   for(const player of youtubePlayers)try{player?.pauseVideo?.();}catch{/* A player may still be connecting. */}
 }
 
@@ -506,6 +568,7 @@ function releaseYouTubePlayers(){
 }
 
 function closeYouTube(){
+  youtubeAutoStart=false;
   ++youtubeGeneration;
   releaseYouTubePlayers();
   if($('youtube-dialog').open)$('youtube-dialog').close();
@@ -533,6 +596,8 @@ document.addEventListener('click',event=>{
   if(category){filter=category.dataset.filter;renderCards();return;}
   const card=event.target.closest('[data-pair]');
   if(card){selectPair(card.dataset.pair,{scroll:window.innerWidth<700});return;}
+  const readyCard=event.target.closest('[data-ready-pair]');
+  if(readyCard){const id=readyCard.dataset.readyPair;selectPair(id).then(()=>{if(selected.id===id)primaryAction();});return;}
   const pick=event.target.closest('[data-pick]');
   if(pick){pickFile(Number(pick.dataset.pick));return;}
   const remove=event.target.closest('[data-delete]');
@@ -549,7 +614,7 @@ document.querySelectorAll('dialog').forEach(dialog=>{
   dialog.addEventListener('click',event=>{if(event.target===dialog){const rect=dialog.getBoundingClientRect();if(event.clientX<rect.left||event.clientX>rect.right||event.clientY<rect.top||event.clientY>rect.bottom)dialog.id==='youtube-dialog'?closeYouTube():dialog.close();}});
 });
 $('youtube-dialog').addEventListener('cancel',event=>{event.preventDefault();closeYouTube();});
-$('youtube-dialog').addEventListener('close',()=>{if(!$('youtube-dialog').open&&youtubePlayers.length)closeYouTube();});
+$('youtube-dialog').addEventListener('close',()=>{if(!$('youtube-dialog').open)closeYouTube();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)pauseYouTube();});
 window.addEventListener('pagehide',()=>{mixer.stop();closeYouTube();});
 window.addEventListener('resize',()=>drawWaveform(mixer.getPosition()));

@@ -350,14 +350,14 @@ Yesの場合、装飾を追加する前に、構成、情報階層、コンテ�
 
 ## Project Direction
 
-- Product / users / primary task: 初心者が2曲の組を選んで再生する。再生ボタンを操作の中心に置く。
-- Context of use / target devices: スマートフォンとデスクトップのブラウザで、短いミックスを聴く。
-- Desired impression: 小さなDJルーム。2枚のレコードと波形で、どちらの曲が鳴っているかを伝える。
-- Information density / hierarchy: プレーヤーを先に置き、少数の候補と補助説明を下へ置く。
-- Reference products / source URLs: 既存画面を引き継ぐ限定的な公開先移行。新規の参考デザイン調査は行っていない。
-- Selected reference dimensions / what to borrow: 現行の2デッキ、中央の再生操作、カテゴリ別の候補表示を維持する。
-- What not to copy / avoid: 多数のノブや専門用語で初心者の操作を増やさない。
-- Structural direction: 2曲を横に対比し、再生・状態・音量を同じプレーヤーに集める。
-- Typography / color / spacing / shape direction: 既存CSS変数を使い、暗いプレーヤーと黄緑の主要操作を継続する。正式バージョンはフッターの小さな表示に置く。
-- Motion / responsive direction: レコードの回転は実際の再生状態に従う。動きを減らす設定を尊重し、狭い画面では音量を独立した行に置く。
-- Durable design decisions: YouTubeの2画面試聴と自動ミックスを別の操作として明示する。2つの公式プレーヤーは横に並べ、狭い画面では縦に並べる。各動画の表示は200px以上の高さを確保し、標準コントロールを覆わない。実機で未確認の見た目・再生を確認済みと表現しない。
+- Product / users / primary task: 初心者が完成済みの公開ミックスをカードか主要ボタンのワンタップで聴く。
+- Context of use / target devices: スマートフォンとデスクトップのブラウザで公開ミックスを聴き、必要ならデモや手元の音源でも遊ぶ。
+- Desired impression: 小さなDJルーム。選曲・制作者・再生操作を先に見せる。
+- Information density / hierarchy: 選択した公開ミックスと主要な再生操作を先に置き、3つの候補と補助機能を下へ置く。
+- Reference products / source URLs: 現行画面の限定的な再生フロー変更。新しい外部デザイン調査は行っていない。
+- Selected reference dimensions / what to borrow: 現行の暗いプレーヤー、中央の再生操作、少数の候補表示を継続する。
+- What not to copy / avoid: 多数のノブや専門用語で初心者の操作を増やさない。公開ミックスに架空の波形・BPM・A/B再生位置を表示しない。
+- Structural direction: 公開ミックスは曲名・収録内容・制作者を表示し、1つの可視公式プレーヤーで聴く。ローカル音源では既存の2デッキと波形を維持する。
+- Typography / color / spacing / shape direction: 既存CSS変数を使い、暗いプレーヤーと黄緑の主要操作を継続する。正式バージョンはフッターへ表示する。
+- Motion / responsive direction: カテゴリは狭い画面で横スクロール。公開ミックスは可視プレーヤーを常に1つとし、標準操作を覆わず200px以上の高さを確保する。
+- Durable design decisions: 公開ミックス再生・ローカル自動クロスフェード・原曲2画面試聴を明確に区別する。実ブラウザで未確認の見た目・動画再生を確認済みと表現しない。

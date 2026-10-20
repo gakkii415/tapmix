@@ -48,12 +48,12 @@
 
 ## Project Content Maturity
 
-- Content value / audience / use context: 選曲にも不慣れな利用者が、少数の曲の組み合わせから始められる。
-- Content types / structure / quality bar: オリジナルのEDMインスト2組と、ボカロ3組・EDM2組。曲名、作者、公式動画のURLを保持する。
-- Current maturity / coverage / depth: DECO*27、wowaka、livetune、Avicii、Zeddの各2曲を候補として案内する。有名曲の実音源は同梱しない。
-- Core content set / completion criteria: デモは追加ファイルなしで再生でき、有名曲は同一画面に並ぶ2つの公式プレーヤーまたは公式リンクから聴ける。YouTubeは個別に再生する方式で、自動ミックスには別途利用できる音源が必要だと分かる。
+- Content value / audience / use context: 選曲や手作業のミックスに不慣れな利用者が、完成済みの公開ミックスを少数の候補から選べる。
+- Content types / structure / quality bar: マッシュアップ2本と本人公開DJセット全編1本。動画名、制作者、使用曲、元動画URL、全編か2曲かを保持し区別する。別機能としてオリジナルデモ2組・手元の音源向け候補5組を維持する。
+- Current maturity / coverage / depth: DJ LoveのClarity × Stay The Night、FriedMixesのWake Me Up × The Nights、Porter RobinsonのSecret Sky Set (2020)を案内。有名曲の音源を同梱・ダウンロードしない。
+- Core content set / completion criteria: 公開ミックスは音源追加なしで1本の動画として聴ける。制作・投稿者と元動画リンクを表示し、アプリによる新規生成と誤認させない。DJセットは全編を冒頭から再生し、未確認の開始秒数を設定しない。
 - Next target state: 初心者が迷わない候補数を維持する。
-- Expansion Set: 新しい組み合わせは公式投稿と選曲理由を確認してから採用する。
-- Deferred or rejected areas / reasons: 未解析のBPM・キー・相性スコアを表示しない。曲調や作者による推薦と、拍・調性の一致を混同しない。
-- Sources / freshness / maintenance: 公式YouTube動画と https://developers.google.com/youtube/terms/developer-policies および https://developers.google.com/youtube/terms/required-minimum-functionality を基準とする。削除・地域・埋め込み制限は公式リンクへの案内で扱う。
-- Durable content decisions: デモはオリジナルのインストと明記する。有名曲を推薦したことが加工許諾を意味する表現を使わない。
+- Expansion Set: 公開投稿・収録曲の情報を確認した候補を採用する。実際の試聴評価・埋め込み可否の確認ができていないことは、確認済みと表現しない。
+- Deferred or rejected areas / reasons: 未解析のBPM・キー・相性スコアや最適な接続秒数を表示しない。曲調や作者による推薦と、拍・調性の一致を混同しない。
+- Sources / freshness / maintenance: 各YouTube投稿が一次情報。Secret Skyの収録曲は https://www.mixesdb.com/w/2020-05-09_-_Porter_Robinson_-_Secret_Sky_Festival で補完する。削除・地域・埋め込み制限は元動画リンクへの案内で扱う。
+- Durable content decisions: 公開マッシュアップは制作者名を表示し、原曲権利者の公式投稿だと表現しない。デモはオリジナルのインストと明記する。推薦を楽曲の加工許諾とみなさない。
