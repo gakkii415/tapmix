@@ -21,7 +21,10 @@ let busy = false;
 let frame = 0;
 let toastTimer;
 let fileTarget;
-let youtubePlayer = null;
+let youtubePlayers = [];
+let youtubeStates = [];
+let youtubeReady = [];
+let youtubeErrors = [];
 let youtubeGeneration = 0;
 let youtubeApiPromise = null;
 let dbPromise;
@@ -384,7 +387,7 @@ function showInfo(kind){
   const contents={
     mix:`<h2>つなぎは、TAPMIXにおまかせ。</h2><div class="prose"><p>2曲の冒頭から、それぞれ最大約32秒を使います。終わりと始まりを数秒重ね、片方を小さく、もう片方を大きくして自然につなぎます。</p><h3>テンポも、できる範囲で。</h3><p>音源からテンポを推定し、十分な確かさがあってテンポが近い場合は、拍のタイミングを合わせます。再生速度を変えるため、音の高さも少し変わります。テンポ差が大きい曲や拍を検出できない曲は、元の速度でつなぎます。</p><p>おすすめは曲調・アーティストで選んだ候補です。キーや曲の構成の完全な一致、すべての曲での自然なつながりを保証するものではありません。</p></div>`,
     privacy:`<h2>あなたの音源は、あなたの中に。</h2><div class="prose"><p>追加した音源は、お使いのブラウザのIndexedDBに保存し、この端末内で解析・再生します。音源をサーバーへアップロードしたり、ほかの人に公開したりする機能はありません。</p><p>選んだ組み合わせ・音量・YouTube試聴への同意は、このブラウザのlocalStorageに保存します。ブラウザ・端末・サイトの配信元を変えた場合や、サイトデータを削除した場合は引き継がれません。</p><h3>音源を削除するには</h3><p>曲を選んで「追加した音源を管理」を開き、ごみ箱を押すとその音源を削除できます。下のボタンですべての保存音源と設定を削除できます。</p><button class="delete-all" id="delete-all-button">${icon('trash')}保存した音源と設定をすべて削除</button><h3>外部サービス</h3><p>このサイトのフォントはGoogle Fontsから読み込みます。YouTubeの試聴は同意後にプレーヤーを読み込み、YouTubeへ情報が送られます。詳しくは<a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Googleのプライバシーポリシー</a>をご確認ください。このサイトはGitHub Pagesで配信します。</p></div>`,
-    youtube:`<h2>YouTubeは、原曲を聴く場所。</h2><div class="prose"><p>ボカロ・EDMの各組に、公式投稿のYouTubeリンクを用意しています。「YouTubeで2曲を試聴」では、1つの公式プレーヤーで2曲を順に再生します。2つの音は重なりません。</p><p>YouTubeの音声を抽出・保存・加工する機能はありません。個人利用であっても、YouTubeの利用規約や音源の利用条件は別途適用されます。</p><p>自動ミックスにはオリジナルデモ、またはご自身で利用できる音源をご使用ください。おすすめに掲載したことは、各楽曲の加工許諾を意味しません。</p><p>広告・地域制限・埋め込み制限・ブラウザの自動再生制限により、試聴が止まる場合があります。その場合は公式YouTubeリンクから開けます。</p><p><a href="https://www.youtube.com/t/terms" target="_blank" rel="noopener noreferrer">YouTube利用規約</a> / <a href="https://developers.google.com/youtube/terms/developer-policies" target="_blank" rel="noopener noreferrer">YouTube開発者ポリシー</a> / <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Googleプライバシーポリシー</a></p></div>`
+    youtube:`<h2>YouTubeは、原曲を聴く場所。</h2><div class="prose"><p>ボカロ・EDMの各組に、公式投稿のYouTubeリンクを用意しています。「YouTubeを2つ並べる」では、2つの公式プレーヤーを同じ画面に並べます。A・Bそれぞれの動画内で再生を押し、音量や再生位置を操作できます。</p><p>この試聴画面は、各動画を手動で開始する方式です。ブラウザや端末によっては、2本目の再生で1本目が停止する場合があります。アプリによる同時自動再生・テンポ合わせは行いません。YouTubeの利用規約や音源の利用条件も適用されます。</p><p>自動ミックスにはオリジナルデモ、またはご自身で利用できる音源をご使用ください。おすすめに掲載したことは、各楽曲の加工許諾を意味しません。</p><p>広告・地域制限・埋め込み制限・ブラウザの自動再生制限により、試聴が止まる場合があります。その場合は公式YouTubeリンクから開けます。</p><p><a href="https://www.youtube.com/t/terms" target="_blank" rel="noopener noreferrer">YouTube利用規約</a> / <a href="https://developers.google.com/youtube/terms/developer-policies" target="_blank" rel="noopener noreferrer">YouTube開発者ポリシー</a> / <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Googleプライバシーポリシー</a></p></div>`
   };
   $('info-content').innerHTML=contents[kind];openDialog('info-dialog');
 }
@@ -404,6 +407,7 @@ async function clearAll(){
 
 function openYouTube(){
   if(!selected.tracks[0].youtube)return;
+  if($('youtube-dialog').open)return;
   stopPlayback();
   $('youtube-links').innerHTML=selected.tracks.map((track,index)=>`<a href="${youtubeURL(track.youtube)}" target="_blank" rel="noopener noreferrer">${icon('link')}${index?'B':'A'} · ${escapeHTML(track.title)} — ${escapeHTML(track.artist)} をYouTubeで開く</a>`).join('');
   $('youtube-consent').hidden=safeGet('tapmix-youtube-consent')==='yes';
@@ -428,41 +432,82 @@ function loadYouTubeAPI(){
 }
 
 async function startYouTube(){
-  const ids=selected.tracks.map(track=>track.youtube);
+  const tracks=selected.tracks.map(track=>({...track}));
   const generation=++youtubeGeneration;
+  releaseYouTubePlayers();
   $('youtube-consent').hidden=true;$('youtube-stage').hidden=false;
   $('youtube-status').textContent='YouTubeに接続しています…';
   try{
     await loadYouTubeAPI();
     if(generation!==youtubeGeneration||!$('youtube-dialog').open)return;
-    $('youtube-player-mount').replaceChildren();
-    const target=document.createElement('div');target.id='youtube-player';$('youtube-player-mount').append(target);
-    youtubePlayer=new YT.Player('youtube-player',{width:'100%',height:'340',host:'https://www.youtube-nocookie.com',playerVars:{playsinline:1,rel:0,origin:location.origin},events:{
-      onReady(event){
-        if(generation!==youtubeGeneration){event.target.destroy();return;}
-        event.target.loadPlaylist({playlist:ids,index:0});
-        $('youtube-status').textContent='再生が始まらない場合は、動画内の再生ボタンを押してください。';
-      },
-      onStateChange(event){
-        if(generation!==youtubeGeneration)return;
-        if(event.data===YT.PlayerState.PLAYING){const index=event.target.getPlaylistIndex();$('youtube-status').textContent=`${index===1?'B':'A'} の原曲を再生中 · YouTubeによる連続再生（ミックスではありません）`;}
-        else if(event.data===YT.PlayerState.ENDED&&event.target.getPlaylistIndex()===1)$('youtube-status').textContent='2曲の試聴が終わりました。';
-      },
-      onAutoplayBlocked(){if(generation===youtubeGeneration)$('youtube-status').textContent='ブラウザが自動再生を止めました。動画内の再生ボタンを押してください。';},
-      onError(event){
-        if(generation!==youtubeGeneration)return;
-        $('youtube-status').textContent=([100,101,150,153].includes(event.data)?'この動画はここで再生できません。':'YouTubeの再生に失敗しました。')+' 下の公式リンクからYouTubeで開いてください。';
-      }
-    }});
+    youtubeStates=[-1,-1];youtubeReady=[false,false];youtubeErrors=['',''];
+    $('youtube-player-mount').innerHTML=tracks.map((track,index)=>{
+      const side=index?'b':'a';
+      return `<section class="youtube-deck" aria-label="${side.toUpperCase()}のYouTubeプレーヤー"><div class="youtube-deck-heading"><span class="deck-letter">${side.toUpperCase()}</span><div><h3>${escapeHTML(track.title)}</h3><p>${escapeHTML(track.artist)}</p></div></div><div class="youtube-frame"><div id="youtube-player-${side}"></div></div><p class="youtube-deck-status" id="youtube-state-${side}" role="status">動画を読み込んでいます…</p></section>`;
+    }).join('');
+    tracks.forEach((track,index)=>{
+      const side=index?'b':'a';
+      youtubePlayers[index]=new YT.Player(`youtube-player-${side}`,{
+        width:'100%',height:'240',videoId:track.youtube,host:'https://www.youtube-nocookie.com',
+        // Only native player taps start playback. The app never auto-starts either video.
+        playerVars:{autoplay:0,controls:1,playsinline:1,rel:0,origin:location.origin},events:{
+          onReady(event){
+            if(generation!==youtubeGeneration){event.target.destroy();return;}
+            youtubeReady[index]=true;
+            event.target.getIframe?.()?.setAttribute('title',`${side.toUpperCase()} · ${track.title} — YouTube`);
+            updateYouTubeStatus();
+          },
+          onStateChange(event){
+            if(generation!==youtubeGeneration)return;
+            youtubeStates[index]=event.data;
+            if(event.data===1)youtubeErrors[index]='';
+            updateYouTubeStatus();
+          },
+          onAutoplayBlocked(){
+            if(generation!==youtubeGeneration)return;
+            $(`youtube-state-${side}`).textContent='動画内の再生ボタンを押してください。';
+          },
+          onError(event){
+            if(generation!==youtubeGeneration)return;
+            youtubeErrors[index]=([100,101,150,153].includes(event.data)?'ここでは再生できません。':'再生に失敗しました。')+' 下の公式リンクから開いてください。';
+            youtubeStates[index]=-1;
+            updateYouTubeStatus();
+          }
+        }
+      });
+    });
   }catch{
-    if(generation===youtubeGeneration)$('youtube-status').textContent='YouTubeに接続できませんでした。下の公式リンクから開いてください。';
+    if(generation===youtubeGeneration){++youtubeGeneration;releaseYouTubePlayers();$('youtube-status').textContent='YouTubeに接続できませんでした。下の公式リンクから開いてください。';}
   }
+}
+
+function updateYouTubeStatus(){
+  ['a','b'].forEach((side,index)=>{
+    const state=youtubeStates[index];
+    const target=$(`youtube-state-${side}`);
+    if(target)target.textContent=youtubeErrors[index]||(state===1?'再生中':state===2?'一時停止中':state===0?'再生終了':state===3?'読み込み中…':youtubeReady[index]?'動画内の再生ボタンでスタート。':'動画を読み込んでいます…');
+  });
+  const playing=youtubeStates.filter(state=>state===1).length;
+  const failed=youtubeErrors.some(Boolean);
+  $('youtube-pause-button').disabled=!youtubeReady.some(Boolean);
+  $('youtube-status').textContent=playing===2?'A と B を同時に再生中。音量・再生位置は各動画で調整できます。':playing===1?`${youtubeStates[0]===1?'A':'B'} を再生中。${failed?'もう一方は公式リンクから開けます。':'もう一方も、動画内の再生ボタンから開始できます。'}`:failed?'再生できない動画は、下の公式リンクから開いてください。':youtubeReady.every(Boolean)?'A と B、それぞれの動画内の再生ボタンを押してください。':'YouTubeに接続しています…';
+}
+
+function pauseYouTube(){
+  for(const player of youtubePlayers)try{player?.pauseVideo?.();}catch{/* A player may still be connecting. */}
+}
+
+function releaseYouTubePlayers(){
+  const players=youtubePlayers;
+  youtubePlayers=[];youtubeStates=[];youtubeReady=[];youtubeErrors=[];
+  for(const player of players)try{player?.destroy();}catch{/* Already detached. */}
+  $('youtube-player-mount').replaceChildren();
+  $('youtube-pause-button').disabled=true;
 }
 
 function closeYouTube(){
   ++youtubeGeneration;
-  if(youtubePlayer){try{youtubePlayer.destroy();}catch{/* Already detached. */}youtubePlayer=null;}
-  $('youtube-player-mount').replaceChildren();
+  releaseYouTubePlayers();
   if($('youtube-dialog').open)$('youtube-dialog').close();
 }
 
@@ -478,6 +523,7 @@ $('youtube-info-button').addEventListener('click',()=>showInfo('youtube'));
 $('add-audio-button').addEventListener('click',openImport);
 $('youtube-button').addEventListener('click',openYouTube);
 $('youtube-consent-button').addEventListener('click',()=>{safeSet('tapmix-youtube-consent','yes');startYouTube();});
+$('youtube-pause-button').addEventListener('click',pauseYouTube);
 $('import-play-button').addEventListener('click',()=>{$('import-dialog').close();primaryAction();});
 
 document.addEventListener('click',event=>{
@@ -503,8 +549,8 @@ document.querySelectorAll('dialog').forEach(dialog=>{
   dialog.addEventListener('click',event=>{if(event.target===dialog){const rect=dialog.getBoundingClientRect();if(event.clientX<rect.left||event.clientX>rect.right||event.clientY<rect.top||event.clientY>rect.bottom)dialog.id==='youtube-dialog'?closeYouTube():dialog.close();}});
 });
 $('youtube-dialog').addEventListener('cancel',event=>{event.preventDefault();closeYouTube();});
-$('youtube-dialog').addEventListener('close',()=>{if(youtubePlayer)closeYouTube();});
-document.addEventListener('visibilitychange',()=>{if(document.hidden&&youtubePlayer?.pauseVideo)youtubePlayer.pauseVideo();});
+$('youtube-dialog').addEventListener('close',()=>{if(!$('youtube-dialog').open&&youtubePlayers.length)closeYouTube();});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)pauseYouTube();});
 window.addEventListener('pagehide',()=>{mixer.stop();closeYouTube();});
 window.addEventListener('resize',()=>drawWaveform(mixer.getPosition()));
 

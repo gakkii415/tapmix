@@ -23,3 +23,34 @@
 
 /* Keep the required version visible without competing with playback. */
 #app-version{font-size:10px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+
+/* Two official video surfaces keep their native playback controls unobscured. */
+.youtube-sheet{width:min(980px,calc(100vw - 28px))}
+#youtube-player-mount.youtube-decks{height:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;background:transparent;place-items:stretch}
+#youtube-player-mount:empty{display:none}
+.youtube-deck{min-width:0;background:#f8faf2;border:1px solid #dce3d0;border-radius:10px;overflow:hidden}
+.youtube-deck-heading{display:flex;gap:9px;align-items:center;padding:12px}
+.youtube-deck-heading>div{min-width:0}
+.youtube-deck-heading .deck-letter{flex-shrink:0;background:#e5edda;color:#546d35;border-color:#c9d6b5}
+.youtube-deck-heading h3{font-size:13px;margin:0 0 3px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.youtube-deck-heading p{font-size:9px;color:#7c886d;margin:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.youtube-frame{position:relative;aspect-ratio:16/9;min-height:200px;background:#172012}
+#youtube-player-mount .youtube-frame iframe{position:absolute;inset:0;width:100%;height:100%;min-height:200px;border:0}
+.youtube-deck-status{font-size:10px;line-height:1.7;color:#6e7e5c;margin:0;padding:9px 12px;min-height:35px}
+.youtube-transport{display:flex;gap:15px;align-items:center;justify-content:space-between;margin-top:10px}
+.youtube-transport #youtube-status{padding:0;margin:0;flex:1;line-height:1.9}
+.youtube-pause{display:flex;gap:6px;align-items:center;flex-shrink:0;font-size:11px;padding:10px 12px;border-radius:7px;color:#edf5e5;background:#34482b}
+.youtube-pause .icon{width:15px;height:15px}
+.youtube-pause:disabled{opacity:.4}
+.youtube-manual-note{font-size:10px;line-height:1.9;color:#7b886c;margin:11px 0 0}
+@media(max-width:650px){
+  #youtube-player-mount.youtube-decks{grid-template-columns:1fr;gap:10px}
+  .youtube-deck-heading{padding:9px 11px}
+  .youtube-deck-heading h3{font-size:12px}
+  .youtube-frame{aspect-ratio:auto;height:200px}
+  .youtube-deck-status{padding:7px 10px;font-size:9px;min-height:30px}
+  .youtube-transport{align-items:flex-start;gap:9px}
+  .youtube-transport #youtube-status{font-size:10px}
+  .youtube-pause{font-size:9px;padding:9px}
+  .youtube-manual-note{font-size:9px}
+}
