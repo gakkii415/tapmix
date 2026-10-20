@@ -46,11 +46,11 @@
 
 ## Project Feature Maturity
 
-- Product / users / core outcome:
-- Current maturity:
-- Core feature set / completion criteria:
-- Next target state:
-- Expansion Set:
-- Deferred or rejected items / reasons:
-- Important flows / states / data decisions:
-- Durable feature decisions:
+- Product / users / core outcome: 初心者が曲の組を選び、手作業でフェーダーを動かさず自動ミックスを楽しむ。
+- Current maturity: オリジナルデモ2組、ローカル音源の追加・保存、テンポ推定、クロスフェード、再生・一時停止・停止・音量に対応。
+- Core feature set / completion criteria: 音源準備から約1分の再生まで成立し、曲変更や停止で古い再生要求を取り消せる。保存失敗時にも今回の再生は可能で、保存できなかったことを表示する。
+- Next target state: 操作の少なさを維持し、現在の音源と公開先で再現可能に運用する。
+- Expansion Set: 追加機能を前提とせず、ユーザーの具体的な利用上の問題から判断する。
+- Deferred or rejected items / reasons: 多数のDJノブ・録音・共有は中心操作を複雑にするため対象外。YouTube音源の取得・改変・重畳は実装しない。
+- Important flows / states / data decisions: 音源はIndexedDB、選択・音量・試聴同意はlocalStorage。同一オリジン内の保存で、サーバーへ音源を送らない。各音源は35MB、3秒〜15分。
+- Durable feature decisions: 信頼できる近いテンポだけ速度調整し、速度と音程が変わることを案内する。YouTubeは同意後、1つの可視プレーヤーで順番に試聴し、閉じたら破棄する。

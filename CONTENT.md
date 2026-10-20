@@ -48,12 +48,12 @@
 
 ## Project Content Maturity
 
-- Content value / audience / use context:
-- Content types / structure / quality bar:
-- Current maturity / coverage / depth:
-- Core content set / completion criteria:
-- Next target state:
-- Expansion Set:
-- Deferred or rejected areas / reasons:
-- Sources / freshness / maintenance:
-- Durable content decisions:
+- Content value / audience / use context: 選曲にも不慣れな利用者が、少数の曲の組み合わせから始められる。
+- Content types / structure / quality bar: オリジナルのEDMインスト2組と、ボカロ3組・EDM2組。曲名、作者、公式動画のURLを保持する。
+- Current maturity / coverage / depth: DECO*27、wowaka、livetune、Avicii、Zeddの各2曲を候補として案内する。有名曲の実音源は同梱しない。
+- Core content set / completion criteria: デモは追加ファイルなしで再生でき、有名曲は公式リンクから原曲を聴ける。自動ミックスには別途利用できる音源が必要だと分かる。
+- Next target state: 初心者が迷わない候補数を維持する。
+- Expansion Set: 新しい組み合わせは公式投稿と選曲理由を確認してから採用する。
+- Deferred or rejected areas / reasons: 未解析のBPM・キー・相性スコアを表示しない。曲調や作者による推薦と、拍・調性の一致を混同しない。
+- Sources / freshness / maintenance: 公式YouTube動画と https://developers.google.com/youtube/terms/developer-policies を基準とする。削除・地域・埋め込み制限は公式リンクへの案内で扱う。
+- Durable content decisions: デモはオリジナルのインストと明記する。有名曲を推薦したことが加工許諾を意味する表現を使わない。

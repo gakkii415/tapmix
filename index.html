@@ -1,4 +1,84 @@
 <!doctype html>
-<html lang="ja"><meta charset="utf-8"><title>準備中</title><body><main>準備中</main>
-<!-- app-version:start --><small id="app-version">v1</small><!-- app-version:end -->
-</body></html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#171917">
+  <meta name="description" content="曲を選んで、ワンタップ。はじめてのDJのための自動ミックスアプリ。ボカロとEDMのおすすめ、すぐに遊べるオリジナルデモ。">
+  <title>TAPMIX — ワンタップで、DJしよう。</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <svg class="icon-defs" aria-hidden="true"><defs>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="m9 5 11 7-11 7Z" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14" stroke-width="4"/></symbol>
+    <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-volume" viewBox="0 0 24 24"><path d="m11 5-5 4H3v6h3l5 4ZM16 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><path d="M13 5h6v6m0-6L9 15M9 5H5v14h14v-4"/></symbol>
+    <symbol id="i-headphones" viewBox="0 0 24 24"><path d="M4 14v-3a8 8 0 0 1 16 0v3M4 12h3v8H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2Zm16 0h-3v8h3a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2Z"/></symbol>
+    <symbol id="i-disc" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2"/><path d="M6 9a7 7 0 0 1 3-3m6 12a7 7 0 0 0 3-3"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 6h16M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7m4-7v7"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-11v1"/></symbol>
+  </defs></svg>
+
+  <div class="app-shell">
+    <header class="site-header">
+      <a class="brand" href="./" aria-label="TAPMIX ホーム"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>TAPMIX</a>
+      <div class="header-right"><span class="private-label"><span></span> YOUR LITTLE DJ ROOM</span><button class="text-button" id="help-button"><svg class="icon"><use href="#i-info"/></svg>使い方</button></div>
+    </header>
+
+    <main>
+      <section class="intro" aria-labelledby="main-title">
+        <div><div class="eyebrow"><span class="tiny-spark">✳</span> はじめてのDJに。</div><h1 id="main-title">選ぶ。押す。<span>もう、DJ。</span></h1></div>
+        <div class="intro-aside"><p>難しいことは、おまかせ。<br>好きな2曲から、あなただけのミックスを。</p><div class="intro-pills"><span><svg class="icon"><use href="#i-check"/></svg>操作はシンプル</span><span><svg class="icon"><use href="#i-check"/></svg>つなぎは自動</span></div></div>
+      </section>
+
+      <section class="mix-room" aria-label="ミックスプレーヤー" id="mix-room">
+        <div class="room-topline"><span class="room-label"><span class="live-dot"></span> <span id="room-state">READY WHEN YOU ARE</span></span><span class="auto-label">TWO TRACKS. ONE TAP.</span></div>
+        <div class="deck-area">
+          <article class="deck deck-a" id="deck-a"><div class="deck-heading"><span class="deck-letter">A</span><span class="track-role">FIRST TRACK</span><span class="bpm" id="bpm-a">126 <small>BPM</small></span></div><div class="vinyl-shell"><div class="vinyl"><div class="vinyl-grooves"></div><div class="vinyl-label theme-neon label-a"><span class="label-word">NEON<br>DRIVE</span><span class="label-ring">TAPMIX ORIGINAL · SIDE A ·</span><i></i></div></div><div class="tonearm"><i></i></div></div><div class="track-meta"><h2 id="track-a-title">Neon Drive</h2><p id="track-a-artist">TAPMIX Original</p></div></article>
+          <div class="mix-bridge" aria-hidden="true"><span></span><svg class="icon"><use href="#i-arrow"/></svg><span></span></div>
+          <article class="deck deck-b" id="deck-b"><div class="deck-heading"><span class="deck-letter">B</span><span class="track-role">NEXT TRACK</span><span class="bpm" id="bpm-b">126 <small>BPM</small></span></div><div class="vinyl-shell"><div class="vinyl"><div class="vinyl-grooves"></div><div class="vinyl-label theme-neon label-b"><span class="label-word">AFTER<br>GLOW</span><span class="label-ring">TAPMIX ORIGINAL · SIDE B ·</span><i></i></div></div><div class="tonearm"><i></i></div></div><div class="track-meta"><h2 id="track-b-title">Afterglow</h2><p id="track-b-artist">TAPMIX Original</p></div></article>
+        </div>
+        <div class="transport">
+          <div class="mix-description"><div><span class="source-chip" id="source-chip">ORIGINAL DEMO</span><span id="mix-description">音源なしで、すぐ試せる。</span></div><button class="understated-button" id="details-button" aria-label="自動ミックスのしくみ"><svg class="icon"><use href="#i-info"/></svg></button></div>
+          <div class="waveform-wrap"><canvas id="waveform" height="72" aria-label="2曲の音量波形"></canvas><span class="wave-playhead" id="wave-playhead"></span></div>
+          <div class="time-row"><span id="time-current">00:00</span><span class="mix-stage" id="mix-stage">あとは、再生を押すだけ。</span><span id="time-total">--:--</span></div>
+          <div class="play-row"><button class="play-button" id="play-button"><svg class="icon"><use href="#i-play"/></svg><span>ワンタップでミックス</span></button><button class="stop-button" id="stop-button" aria-label="ミックスを停止して最初に戻す" disabled><svg class="icon"><use href="#i-stop"/></svg></button><div class="volume-control"><svg class="icon"><use href="#i-volume"/></svg><label class="sr-only" for="volume">音量</label><input type="range" id="volume" min="0" max="100" value="70" aria-label="音量"><span id="volume-value">70</span></div></div>
+          <div class="player-footnote" id="player-footnote">オリジナルのインスト2曲を、約1分に自動ミックス。</div>
+          <div class="source-actions" id="source-actions" hidden><button class="light-text-button" id="add-audio-button"><svg class="icon"><use href="#i-plus"/></svg><span>音源を追加して、ミックスする</span></button><button class="light-text-button" id="youtube-button"><svg class="icon"><use href="#i-play"/></svg><span>YouTubeで2曲を試聴</span></button></div>
+        </div>
+      </section>
+
+      <section class="selection" aria-labelledby="selection-title">
+        <div class="selection-heading"><div class="section-title-row"><h2 id="selection-title">今日は、どの2曲？</h2><span class="handwritten">選曲も、おまかせ。<svg class="icon"><use href="#i-arrow"/></svg></span></div><p>相性のよさそうな組み合わせを、選んでおきました。</p></div>
+        <div class="filters" aria-label="曲のカテゴリ"><button class="filter active" data-filter="demo" aria-pressed="true">すぐ試せる<span>2</span></button><button class="filter" data-filter="vocaloid" aria-pressed="false">ボカロ<span>3</span></button><button class="filter" data-filter="edm" aria-pressed="false">EDM<span>2</span></button><button class="filter" data-filter="custom" aria-pressed="false"><svg class="icon"><use href="#i-plus"/></svg>自分の曲</button></div>
+        <p class="filter-note" id="filter-note">TAPMIXのオリジナル音源。準備なしで、自動ミックスを体験できます。</p>
+        <div class="pair-grid" id="pair-grid"></div>
+      </section>
+
+      <section class="little-note"><div class="note-icon"><svg class="icon"><use href="#i-headphones"/></svg></div><div><h2>うまくつなぐより、楽しめればいい。</h2><p>ノブも、フェーダーも、難しい準備も。ここではいりません。<br>小さなDJルームで、好きな音を楽しもう。</p></div><span class="note-star" aria-hidden="true">✳</span></section>
+    </main>
+    <footer><span class="footer-brand">TAPMIX<span>少ない操作で、音楽をもっと。</span></span><div><button class="footer-link" id="privacy-button">音源とプライバシー</button><button class="footer-link" id="youtube-info-button">YouTubeについて</button></div><span class="footer-small">MADE FOR YOUR EARS.</span><!-- app-version:start --><small id="app-version">v2</small><!-- app-version:end --></footer>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <input type="file" id="file-input" accept="audio/*,.mp3,.wav,.m4a,.ogg,.flac,.aac,.aiff" hidden>
+
+  <dialog id="import-dialog" class="sheet"><div class="dialog-header"><span class="eyebrow">YOUR MUSIC, YOUR MIX.</span><button class="icon-button" data-close="import-dialog" aria-label="閉じる"><svg class="icon"><use href="#i-close"/></svg></button></div><h2>音源を2つ、入れるだけ。</h2><p class="dialog-lead">一度追加すれば、次からはワンタップ。<br>利用できる音源ファイルを選んでください。</p><div class="upload-slots" id="upload-slots"></div><p class="local-note"><svg class="icon"><use href="#i-check"/></svg>音源はこのブラウザ内に保存。サーバーへ送りません。</p><p class="small-muted">MP3・WAV・M4Aなど（各35MB・3秒〜15分）。約1分のミックスを自動でつくります。YouTubeのURLは音源として取り込めません。</p><button class="primary-button" id="import-play-button" disabled><svg class="icon"><use href="#i-play"/></svg>この2曲をミックス</button></dialog>
+
+  <dialog id="help-dialog" class="sheet"><div class="dialog-header"><span class="eyebrow">LET'S GET STARTED.</span><button class="icon-button" data-close="help-dialog" aria-label="閉じる"><svg class="icon"><use href="#i-close"/></svg></button></div><h2>DJのはじめ方は、3つだけ。</h2><ol class="howto"><li><span>01</span><div><h3>気になる2曲を選ぶ。</h3><p>最初は「すぐ試せる」のデモがおすすめ。音源の準備もいりません。</p></div></li><li><span>02</span><div><h3>再生を、ワンタップ。</h3><p>つなぐタイミングと音量の切り替えは自動。再生中は一時停止や停止もできます。</p></div></li><li><span>03</span><div><h3>好きな曲でも、やってみる。</h3><p>ボカロ・EDMのおすすめ、または自分の曲を選び、利用できる音源を2つ追加。次からは保存した音源で遊べます。</p></div></li></ol><div class="info-box">YouTubeでは原曲を1曲ずつ試聴できます。音を重ねる自動ミックスには、デモまたは手元の音源を使います。</div><button class="primary-button" data-close="help-dialog">さっそく、やってみる<svg class="icon"><use href="#i-arrow"/></svg></button></dialog>
+
+  <dialog id="info-dialog" class="sheet"><div class="dialog-header"><span class="eyebrow">A LITTLE MORE ABOUT TAPMIX.</span><button class="icon-button" data-close="info-dialog" aria-label="閉じる"><svg class="icon"><use href="#i-close"/></svg></button></div><div id="info-content"></div></dialog>
+
+  <dialog id="youtube-dialog" class="youtube-sheet"><div class="dialog-header"><div><span class="eyebrow">YOUTUBE · ORIGINAL TRACKS</span><h2>原曲を、順に聴いてみよう。</h2></div><button class="icon-button" data-close="youtube-dialog" aria-label="YouTubeを停止して閉じる"><svg class="icon"><use href="#i-close"/></svg></button></div><p class="youtube-note">1曲ずつ連続再生します。音を重ねるミックスではありません。</p><div id="youtube-consent"><div class="info-box">YouTubeのプレーヤーを読み込みます。YouTubeに利用情報が送信され、Cookieなどが使われる場合があります。<a href="https://www.youtube.com/t/terms" target="_blank" rel="noopener noreferrer">YouTube利用規約</a>・<a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Googleプライバシーポリシー</a>をご確認ください。</div><button class="primary-button" id="youtube-consent-button">同意してYouTubeで試聴<svg class="icon"><use href="#i-play"/></svg></button></div><div id="youtube-stage" hidden><div id="youtube-player-mount"></div><p id="youtube-status" role="status">YouTubeに接続しています…</p></div><div id="youtube-links" class="youtube-links"></div></dialog>
+
+  <noscript><p class="noscript">TAPMIXを使うには、ブラウザのJavaScriptを有効にしてください。</p></noscript>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

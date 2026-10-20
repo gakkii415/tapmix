@@ -1,0 +1,10 @@
+{
+  "name": "auto-mix-dj",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node --check app.js && node --check audio.js && node --check data.js",
+    "test": "node --test tests/*.test.mjs"
+  }
+}
